@@ -1,40 +1,63 @@
 stages:
-  - install
   - test
+  - build
 
 variables:
   NODE_ENV: test
 
-cache:
-  paths:
-    - node_modules/
-
-before_script:
-  - npm ci
-
-install_dependencies:
-  stage: install
-  script:
-    - echo "Dependencies installed"
-
-unit_tests:
+unit-tests:
+  image: node:latest
   stage: test
+  before_script:
+    - npm ci
   script:
-    - npm run test -- --watchAll=false --coverage
-  artifacts:
+    - npm test -- --watchAll=false
+  cache:
     paths:
-      - coverage/
-    expire_in: 1 week
-  only:
-    - branches
-    - merge_requests
+      - node_modules/
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      exists:
+        - package.json
+        - "**/*.test.js"
 
-integration_tests:
+integration-tests:
+  image: node:latest
   stage: test
+  before_script:
+    - npm ci
   script:
-    - echo "Lancer ici tes tests d'intégration"
-    # Si tu as un script npm spécifique pour tests d'intégration, par exemple :
-    # - npm run test:integration
-  only:
-    - branches
-    - merge_requests
+    - echo "Running integration tests..."
+    - npm run test:integration
+  cache:
+    paths:
+      - node_modules/
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      exists:
+        - package.json
+        - "**/*.test.js" # ou adapter selon ta convention
+  needs: ["unit-tests"]
+
+docker-build:
+  image: docker:cli
+  stage: build
+  services:
+    - docker:dind
+  variables:
+    DOCKER_IMAGE_NAME: ghofrane694/boardhub7:$CI_COMMIT_REF_SLUG
+  before_script:
+    - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+  script:
+    - docker build --pull -t "$DOCKER_IMAGE_NAME" .
+    - docker push "$DOCKER_IMAGE_NAME"
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+        docker tag "$DOCKER_IMAGE_NAME" "ghofrane694/boardhub7:latest"
+        docker push "ghofrane694/boardhub7:latest"
+      fi
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      exists:
+        - Dockerfile
+  needs: ["integration-tests"]
