@@ -36,7 +36,7 @@ integration-tests:
     - if: $CI_COMMIT_BRANCH
       exists:
         - package.json
-        - "**/*.test.js" # ou adapter selon ta convention
+        - "**/*.integration.test.js" # ou adapter selon ta convention
   needs: ["unit-tests"]
 
 docker-build:
