@@ -1,0 +1,40 @@
+stages:
+  - install
+  - test
+
+variables:
+  NODE_ENV: test
+
+cache:
+  paths:
+    - node_modules/
+
+before_script:
+  - npm ci
+
+install_dependencies:
+  stage: install
+  script:
+    - echo "Dependencies installed"
+
+unit_tests:
+  stage: test
+  script:
+    - npm run test -- --watchAll=false --coverage
+  artifacts:
+    paths:
+      - coverage/
+    expire_in: 1 week
+  only:
+    - branches
+    - merge_requests
+
+integration_tests:
+  stage: test
+  script:
+    - echo "Lancer ici tes tests d'intégration"
+    # Si tu as un script npm spécifique pour tests d'intégration, par exemple :
+    # - npm run test:integration
+  only:
+    - branches
+    - merge_requests
