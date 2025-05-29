@@ -1,6 +1,7 @@
 stages:
   - test
   - build
+  - deploy
 
 variables:
   NODE_ENV: test
@@ -36,7 +37,7 @@ integration-tests:
     - if: $CI_COMMIT_BRANCH
       exists:
         - package.json
-        - "**/*.integration.test.js" # ou adapter selon ta convention
+        - "**/*.integration.test.js"
   needs: ["unit-tests"]
 
 docker-build:
@@ -61,3 +62,23 @@ docker-build:
       exists:
         - Dockerfile
   needs: ["integration-tests"]
+
+deploy:
+  image: alpine:latest
+  stage: deploy
+  before_script:
+    - apk add --no-cache openssh
+  script:
+    - echo "Deploying to production server..."
+    - |
+      ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
+        docker pull ghofrane694/boardhub8:latest
+        docker stop boardhub8 || true
+        docker rm boardhub8 || true
+        docker run -d --name boardhub8 -p 80:3000 ghofrane694/boardhub8:latest
+EOF
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      exists:
+        - Dockerfile
+  needs: ["docker-build"]
