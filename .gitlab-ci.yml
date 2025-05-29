@@ -1,6 +1,7 @@
 stages:
   - test
   - build
+  - deploy
 
 variables:
   NODE_ENV: test
@@ -36,7 +37,7 @@ integration-tests:
     - if: $CI_COMMIT_BRANCH
       exists:
         - package.json
-        - "**/*.integration.test.js" # ou adapter selon ta convention
+        - "**/*.integration.test.js"
   needs: ["unit-tests"]
 
 docker-build:
@@ -61,3 +62,22 @@ docker-build:
       exists:
         - Dockerfile
   needs: ["integration-tests"]
+
+deploy-to-minikube:
+  image: bitnami/kubectl:latest
+  stage: deploy
+  before_script:
+    # This assumes you're using a self-hosted runner and have a valid kubeconfig file set in your environment
+    - echo "$KUBECONFIG_CONTENT" > kubeconfig
+    - export KUBECONFIG=$CI_PROJECT_DIR/kubeconfig
+  script:
+    - echo "Deploying to Minikube..."
+    - kubectl config use-context minikube
+    - kubectl apply -f k8s/deployment.yaml
+    - kubectl apply -f k8s/service.yaml
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      exists:
+        - k8s/deployment.yaml
+        - k8s/service.yaml
+  needs: ["docker-build"]
