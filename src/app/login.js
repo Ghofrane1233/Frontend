@@ -8,15 +8,13 @@ const Login = ({ setToken }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const apiUrl = process.env.REACT_APP_API_URL;
+console.log("API URL = ", apiUrl);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       //const response = await axios.post('${apiUrl}/login/login', {
-	  const response = await axios.post(`${apiUrl}/login/login`, {
-        username,
-        password
-      });
+	  const response = await axios.post(`${apiUrl}/login/login`,  { username, password });
       const token =response.data.token
       localStorage.setItem('token', token); // ou sessionStorage
 console.log("tken",token)

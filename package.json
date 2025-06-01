@@ -2,6 +2,7 @@
   "name": "test",
   "version": "0.1.0",
   "private": true,
+   "proxy": "http://localhost:4000",
   "dependencies": {
     "@ag-grid-community/styles": "^31.3.4",
     "@emotion/react": "^11.11.1",
@@ -19,6 +20,7 @@
     "express": "^5.1.0",
     "file-saver": "^2.0.5",
     "html2canvas": "^1.4.1",
+    "http-proxy-middleware": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.503.0",
