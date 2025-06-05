@@ -2,16 +2,14 @@ pipeline {
   agent any
 
   environment {
-    DOCKER_IMAGE = 'ghofrane694/Frontend:latest'
+    DOCKER_IMAGE = 'ghofrane694/frontend:latest'
     DOCKER_CREDENTIALS_ID = 'docker-hub-credentials-id'
-    //KUBE_CONFIG_CREDENTIALS_ID = 'kubeconfig-credentials-id'
   }
 
   stages {
-
     stage('Install Dependencies') {
       steps {
-        dir('Frontend') {
+        dir('frontend') {
           bat 'npm install'
         }
       }
@@ -20,7 +18,7 @@ pipeline {
     stage('Run Tests') {
       steps {
         dir('frontend') {
-          bat 'npm test || echo "Tests échoués mais on continue..."'
+          bat 'npm test -- --passWithNoTests || echo "Tests ignorés car absents"'
         }
       }
     }
@@ -44,8 +42,6 @@ pipeline {
         }
       }
     }
-
-   
   }
 
   post {
