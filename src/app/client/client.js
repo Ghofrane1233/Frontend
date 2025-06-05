@@ -50,7 +50,7 @@ const ClientsManager = ({ token, setToken }) => {
     setError(null);
   
     try {
-      const response = await axios.get(`${apiUrl}/clients/clients`, { // Appel via API Gateway
+      const response = await axios.get(`${apiUrl}/clients/clients`, { 
         headers: {
           Authorization: `Bearer ${token}`
         }
