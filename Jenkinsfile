@@ -9,26 +9,20 @@ pipeline {
   stages {
     stage('Install Dependencies') {
       steps {
-        dir('frontend') {
-          bat 'npm install'
-        }
+        bat 'npm install'
       }
     }
 
     stage('Run Tests') {
       steps {
-        dir('frontend') {
-          bat 'npm test -- --passWithNoTests || echo "Tests ignorés car absents"'
-        }
+        bat 'npm test -- --passWithNoTests || echo "Tests ignorés car absents"'
       }
     }
 
     stage('Build Docker Image') {
       steps {
-        dir('frontend') {
-          script {
-            env.BUILT_IMAGE_ID = docker.build(env.DOCKER_IMAGE).id
-          }
+        script {
+          env.BUILT_IMAGE_ID = docker.build(env.DOCKER_IMAGE).id
         }
       }
     }
