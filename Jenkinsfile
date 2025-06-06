@@ -13,9 +13,21 @@ pipeline {
       }
     }
 
-    stage('Run Tests') {
+    stage('Run Unit Test: Login') {
       steps {
-        bat 'npm test -- --passWithNoTests || echo "Tests ignorés car absents"'
+        bat 'npm test src/app/__tests__/Login.test.js || echo "Login unit test failed (but continued)"'
+      }
+    }
+
+    stage('Run Integration Test: Dashboard') {
+      steps {
+        bat 'npm test src/app/__tests__/Dashboard.integration.test.js || echo "Dashboard integration test failed (but continued)"'
+      }
+    }
+
+    stage('Run All Other Tests') {
+      steps {
+        bat 'npm test -- --passWithNoTests || echo "Other tests skipped or failed"'
       }
     }
 
