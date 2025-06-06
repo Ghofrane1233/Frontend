@@ -9,30 +9,38 @@ pipeline {
   stages {
     stage('Install Dependencies') {
       steps {
-        bat 'npm install'
+        bat 'npm ci'
       }
     }
 
-    stage('Run Unit Test: Login') {
+    stage('Run Unit Tests') {
       steps {
         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-          bat 'npm test -- --testPathPattern=Login'
+          script {
+            def hasTests = bat(script: 'dir /s /b *.test.js', returnStatus: true) == 0
+            if (hasTests) {
+              bat 'echo "Running unit tests..."'
+              bat 'npm test -- --watchAll=false'
+            } else {
+              echo 'No unit test files found. Skipping unit tests.'
+            }
+          }
         }
       }
     }
 
-    stage('Run Integration Test: Dashboard') {
+    stage('Run Integration Tests') {
       steps {
         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-          bat 'npm test -- --testPathPattern=Dashboard.integration'
-        }
-      }
-    }
-
-    stage('Run All Other Tests') {
-      steps {
-        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-          bat 'npm test'
+          script {
+            def hasIntegrationTests = bat(script: 'dir /s /b *.integration.test.js', returnStatus: true) == 0
+            if (hasIntegrationTests) {
+              bat 'echo "Running integration tests..."'
+              bat 'npm run test:integration'
+            } else {
+              echo 'No integration test files found. Skipping integration tests.'
+            }
+          }
         }
       }
     }
