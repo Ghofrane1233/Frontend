@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: react-app
+  name: frontend
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: react-app
+      app: frontend
   template:
     metadata:
       labels:
-        app: react-app
+        app: frontend
     spec:
       containers:
-      - name: react-app
+      - name: frontend
         image: "ghofrane694/frontend:latest"
         ports:
         - containerPort: 80
