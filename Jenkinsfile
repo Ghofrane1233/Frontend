@@ -9,13 +9,34 @@ pipeline {
   stages {
     stage('Install Dependencies') {
       steps {
-        bat 'npm install'
+        echo '📦 Installing dependencies...'
+        bat 'npm ci'
       }
     }
 
-    stage('Run Tests') {
+    stage('Unit Tests') {
+      when {
+        expression {
+          fileExists('package.json') && 
+          findFiles(glob: '**/*.test.js').length > 0
+        }
+      }
       steps {
-        bat 'npm test -- --passWithNoTests || echo "Tests ignorés car absents"'
+        echo '🧪 Running unit tests...'
+        bat 'npm test -- --watchAll=false'
+      }
+    }
+
+    stage('Integration Tests') {
+      when {
+        expression {
+          fileExists('package.json') && 
+          findFiles(glob: '**/*.integration.test.js').length > 0
+        }
+      }
+      steps {
+        echo '🔗 Running integration tests...'
+        bat 'npm run test:integration'
       }
     }
 
@@ -40,10 +61,10 @@ pipeline {
 
   post {
     success {
-      echo '✅ Frontend pipeline completed successfully'
+      echo '✅ Pipeline completed successfully.'
     }
     failure {
-      echo '❌ Frontend pipeline failed'
+      echo '❌ Pipeline failed.'
     }
   }
 }
