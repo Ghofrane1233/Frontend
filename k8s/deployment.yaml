@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: react-app
-        image: "ghofrane694/boardhub8"
+        image: "ghofrane694/frontend:latest"
         ports:
         - containerPort: 80
         resources:
