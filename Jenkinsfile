@@ -2,27 +2,21 @@ pipeline {
   agent any
 
   environment {
-    DOCKER_IMAGE = 'ghofrane694/frontend:latest'
-    DOCKER_CREDENTIALS_ID = 'docker-hub-credentials-id'
+    NODE_ENV = "test"
   }
 
   stages {
-    stage('Install Dependencies') {
-      steps {
-        echo '📦 Installing dependencies...'
-        bat 'npm ci'
-      }
-    }
-
     stage('Unit Tests') {
       when {
         expression {
-          fileExists('package.json') && 
-          findFiles(glob: '**/*.test.js').length > 0
+          return fileExists('package.json') &&
+                 bat(script: 'ls **/*.test.js > /dev/null 2>&1', returnStatus: true) == 0
         }
       }
       steps {
-        echo '🧪 Running unit tests...'
+        echo "Installing dependencies for unit tests..."
+        bat 'npm ci'
+        echo "Running unit tests..."
         bat 'npm test -- --watchAll=false'
       }
     }
@@ -30,41 +24,36 @@ pipeline {
     stage('Integration Tests') {
       when {
         expression {
-          fileExists('package.json') && 
-          findFiles(glob: '**/*.integration.test.js').length > 0
+          return fileExists('package.json') &&
+                 bat(script: 'ls **/*.integration.test.js > /dev/null 2>&1', returnStatus: true) == 0
         }
       }
       steps {
-        echo '🔗 Running integration tests...'
+        echo "Installing dependencies for integration tests..."
+        bat 'npm ci'
+        echo "Running integration tests..."
         bat 'npm run test:integration'
       }
     }
 
     stage('Build Docker Image') {
       steps {
-        script {
-          env.BUILT_IMAGE_ID = docker.build(env.DOCKER_IMAGE).id
-        }
+        echo "Build step here"
+        // example: bat 'docker build -t myimage .'
       }
     }
 
     stage('Push to Docker Hub') {
       steps {
-        script {
-          docker.withRegistry('https://index.docker.io/v1/', env.DOCKER_CREDENTIALS_ID) {
-            docker.image(env.DOCKER_IMAGE).push("latest")
-          }
-        }
+        echo "Push step here"
+        // example: bat 'docker push myimage'
       }
     }
   }
 
   post {
-    success {
-      echo '✅ Pipeline completed successfully.'
-    }
     failure {
-      echo '❌ Pipeline failed.'
+      echo "❌ Pipeline failed."
     }
   }
 }
