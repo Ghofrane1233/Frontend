@@ -16,7 +16,7 @@ pipeline {
     stage('Run Unit Test: Login') {
       steps {
         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-          bat 'npm test -- src/app/__tests__/Login.test.js'
+          bat 'npm test -- --testPathPattern=Login'
         }
       }
     }
@@ -24,7 +24,7 @@ pipeline {
     stage('Run Integration Test: Dashboard') {
       steps {
         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-          bat 'npm test -- src/app/__tests__/Dashboard.integration.test.js'
+          bat 'npm test -- --testPathPattern=Dashboard.integration'
         }
       }
     }
@@ -32,7 +32,7 @@ pipeline {
     stage('Run All Other Tests') {
       steps {
         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-          bat 'npm test -- --passWithNoTests'
+          bat 'npm test'
         }
       }
     }
