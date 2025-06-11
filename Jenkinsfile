@@ -4,7 +4,6 @@ pipeline {
   environment {
     DOCKER_IMAGE = 'ghofrane694/frontend:latest'
     DOCKER_CREDENTIALS_ID = 'docker-hub-credentials-id'
-    REACT_APP_API_URL = 'http://127.0.0.1:54735'  // <-- ton URL d'API pour build React
   }
 
   stages {
@@ -50,10 +49,7 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         script {
-          env.BUILT_IMAGE_ID = docker.build(
-            env.DOCKER_IMAGE, 
-            "--build-arg REACT_APP_API_URL=${env.REACT_APP_API_URL} ."
-          ).id
+          env.BUILT_IMAGE_ID = docker.build(env.DOCKER_IMAGE).id
         }
       }
     }
