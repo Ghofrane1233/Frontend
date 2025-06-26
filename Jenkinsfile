@@ -68,7 +68,7 @@ pipeline {
       steps {
         script {
           try {
-            withKubeConfig([credentialsId: 'kubeconfig', serverUrl: 'https://127.0.0.1:62537']) {
+            withKubeConfig([credentialsId: 'kubeconfig', serverUrl: 'https://127.0.0.1:54337']) {
               bat 'kubectl apply -f K8s --validate=false'
             }
           } catch (Exception e) {
