@@ -1,30 +1,34 @@
-# Étape 1 : Build avec Node.js (léger)
+# =========================
+# Stage 1 : Build React
+# =========================
 FROM node:18-alpine AS builder
-
-# Réduire la taille des dépendances et des couches intermédiaires
-ENV NODE_ENV=production
 
 WORKDIR /app
 
-COPY package*.json ./
+# نستغل Docker cache
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 
-RUN npm ci --prefer-offline --no-audit
-
+# ننسخو السورس بعد
 COPY . .
 
+# Build React
 RUN npm run build
 
-# Étape 2 : Image finale ultra légère avec NGINX
+
+# =========================
+# Stage 2 : Nginx Runtime
+# =========================
 FROM nginx:stable-alpine
 
-# Supprimer les fichiers de conf par défaut
+# تنظيف default files
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copier uniquement le build final (léger)
+# نسخو build فقط
 COPY --from=builder /app/build /usr/share/nginx/html
 
-# (Optionnel) Personnaliser la config nginx si nécessaire
-# COPY nginx.conf /etc/nginx/nginx.conf
+# Healthcheck (اختياري)
+HEALTHCHECK CMD wget -qO- http://localhost/ || exit 1
 
 EXPOSE 80
 
